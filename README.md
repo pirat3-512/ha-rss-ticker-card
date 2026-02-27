@@ -65,27 +65,29 @@ HACS will register the resource automatically.
 3. Usage (example card)
 The recommended setup is to always wrap the ticker card in mod-card and stretch it to a fixed 1680px width, centered in your layout.
 
-text
+
+
 type: custom:mod-card
 card:
   type: custom:rss-ticker-card
   entity: sensor.infowars_rss
   titles_attr: titles
   links_attr: links
-  speed: 80
+  speed: 100
   font_size: 20px
-  background: '#000000'
+  background: "#000000"
   hover_pause: true
   colors:
-    - '#00ff00'
-    - '#00aaff'
-    - '#ff3333'
+    - "#00ff00"
+    - "#00aaff"
+    - "#ff3333"
 card_mod:
   style: |
     ha-card {
       width: 1680px;    /* always stretch to 1680 px */
       margin: 0 auto;   /* center it in the section */
     }
+
 Place this card in a row or view where it has enough horizontal space (for example, a grid row that spans multiple columns, or a single‑column/panel view). [web:129]
 
 4. Configuration options
