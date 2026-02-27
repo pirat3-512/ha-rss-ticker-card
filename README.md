@@ -89,6 +89,8 @@ card_mod:
       margin: 0 auto;   /* center it in the section */
     }
 
+```
+
 
 
 Place this card in a row or view where it has enough horizontal space (for example, a grid row that spans multiple columns, or a single‑column/panel view). [web:129]
