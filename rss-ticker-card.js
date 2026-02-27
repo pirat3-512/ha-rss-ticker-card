@@ -3,30 +3,55 @@ class RssTickerCard extends HTMLElement {
     if (!config.entity) {
       throw new Error("You must define an entity (RSS sensor).");
     }
+
     this._config = {
-      speed: 80, // px per second
-      font_size: "20px",
-      font_family: "monospace",
-      background: "#000000",
-      text_color: "#ffffff",
-      hover_pause: true,
-      colors: ["#00ff00", "#00aaff", "#ff3333"],
-      ...config,
+      // core
+      entity: config.entity,
+      titles_attr: config.titles_attr || "titles",
+      links_attr: config.links_attr || "links",
+
+      // visuals
+      speed: config.speed !== undefined ? config.speed : 80, // px/s
+      font_size: config.font_size || "20px",
+      font_family: config.font_family || "monospace",
+      background: config.background || "#000000",
+      text_color: config.text_color || "#ffffff",
+      hover_pause: config.hover_pause !== undefined ? config.hover_pause : true,
+      colors: Array.isArray(config.colors) && config.colors.length
+        ? config.colors
+        : ["#00ff00", "#00aaff", "#ff3333"],
+
+      // layout hints (for use with mod-card etc.)
+      // NOTE: these are not enforced by the card, only exposed as config
+      width: config.width || null, // e.g. "1680px" or "100%"
     };
+
     this._initialized = false;
   }
 
   set hass(hass) {
     this._hass = hass;
-    const entity = this._config.entity;
-    const stateObj = hass.states[entity];
+    const entityId = this._config.entity;
+    const stateObj = hass.states[entityId];
+
     if (!stateObj) {
-      this._renderError(`Entity ${entity} not found`);
+      this._renderError(`Entity ${entityId} not found`);
       return;
     }
 
-    const titles = stateObj.attributes.titles || [];
-    const links = stateObj.attributes.links || [];
+    const titlesAttr = this._config.titles_attr;
+    const linksAttr = this._config.links_attr;
+
+    const titles = stateObj.attributes[titlesAttr] || [];
+    const links = stateObj.attributes[linksAttr] || [];
+
+    if (!Array.isArray(titles) || !Array.isArray(links)) {
+      this._renderError(
+        `Attributes ${titlesAttr} / ${linksAttr} must be arrays on ${entityId}`
+      );
+      return;
+    }
+
     const count = Math.min(titles.length, links.length);
 
     if (!this._initialized) {
@@ -91,7 +116,6 @@ class RssTickerCard extends HTMLElement {
 
     const inner = document.createElement("div");
     inner.className = "rss-ticker-inner";
-    inner.id = "rss-ticker-inner";
 
     if (cfg.hover_pause) {
       bar.addEventListener("mouseenter", () => {
@@ -106,11 +130,13 @@ class RssTickerCard extends HTMLElement {
     wrapper.appendChild(bar);
     card.appendChild(style);
     card.appendChild(wrapper);
+
     this.innerHTML = "";
     this.appendChild(card);
 
     this._inner = inner;
 
+    // adjust speed on resize too
     window.addEventListener("resize", () => {
       this._updateTickerSpeed();
     });
@@ -151,24 +177,21 @@ class RssTickerCard extends HTMLElement {
   _updateTickerSpeed() {
     const inner = this._inner;
     if (!inner) return;
-    const speed = this._config.speed || 80;
+
+    const speed = this._config.speed || 80; // px per second
     // Force layout to get width
     const width = inner.offsetWidth;
     if (!width) return;
+
     const duration = width / speed; // seconds
     inner.style.animationDuration = `${duration}s`;
   }
 
   _renderError(message) {
-    if (!this._errorCard) {
-      const card = document.createElement("ha-card");
-      card.innerHTML = `<div style="padding:16px; color:red;">${message}</div>`;
-      this.innerHTML = "";
-      this.appendChild(card);
-      this._errorCard = card;
-    } else {
-      this._errorCard.firstElementChild.textContent = message;
-    }
+    const card = document.createElement("ha-card");
+    card.innerHTML = `<div style="padding:16px; color:red;">${message}</div>`;
+    this.innerHTML = "";
+    this.appendChild(card);
   }
 
   getCardSize() {
