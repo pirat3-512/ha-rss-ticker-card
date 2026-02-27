@@ -1,25 +1,30 @@
 # RSS Ticker Card
 
-A simple Lovelace card that displays RSS headlines from a sensor as a horizontal ticker with fixed pixel speed and hover-to-pause.
+A custom Lovelace card for Home Assistant that displays RSS headlines from a sensor as a horizontal ticker with:
 
-## Installation (manual)
+- Fixed pixel scroll speed (independent of how many headlines there are). [web:94][web:97]
+- Hover‑to‑pause.
+- Per‑headline color cycling.
+- Recommended 1680px wide bar via `mod-card`.
 
-1. Copy `rss-ticker-card.js` to your Home Assistant `/config/www/` folder.
-2. Add a resource in Settings → Dashboards → Resources:
+**Prerequisite:** an RSS sensor (e.g. from the built‑in `feedreader` integration) that exposes arrays of `titles` and `links` attributes. [web:55][web:57]
 
-   - URL: `/local/rss-ticker-card.js`
-   - Type: `Module`
+---
 
-3. Add the card to a dashboard:
+## 1. Prerequisite: Feedreader + RSS sensor
+
+First, you need an RSS source made available to Home Assistant via `feedreader`, and then a sensor that exposes the feed items as `titles` and `links` arrays.
+
+### 1.1 Feedreader integration
+
+Add `feedreader` to `configuration.yaml` (adjust the URL to your feed):
 
 ```yaml
-type: custom:rss-ticker-card
-entity: sensor.infowars_rss
-speed: 80
-font_size: 20px
-background: '#000000'
-hover_pause: true
-colors:
-  - '#00ff00'
-  - '#00aaff'
-  - '#ff3333'
+feedreader:
+  urls:
+    - https://www.infowars.com/rss.xml
+  # Optional if you still configure this via YAML:
+  # scan_interval:
+  #   minutes: 5
+  # max_entries: 50
+
