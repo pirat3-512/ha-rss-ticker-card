@@ -1,0 +1,5 @@
+ha-rss-ticker-card/
+  ├─ rss-ticker-card.js
+  ├─ hacs.json
+  ├─ README.md
+  └─ LICENSE
